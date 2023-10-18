@@ -1,0 +1,85 @@
+namespace: laravel-realworld-example-app
+laravel-realworld-example-app:
+  defines: runnable
+  metadata:
+    name: laravel-realworld-example-app
+    description: >-
+      A Laravel application built based on the specifications of the RealWorld
+      app.
+    icon: https://emojiapi.dev/api/v1/large_blue_diamond.svg
+  containers:
+    laravel-realworld-example-app:
+      build: .
+  services:
+    main:
+      container: laravel-realworld-example-app
+      port: 80
+      host-port: 80
+      publish: false
+      protocol: TCP
+      description: Main port for http access.
+  connections:
+    mysql:
+      target: laravel-realworld-example-app/db
+      service: monk-mysql-db
+    redis:
+      target: laravel-realworld-example-app/redis
+      service: redis-svc
+  variables:
+    app-base-path:
+      env: APP_BASE_PATH
+      type: string
+      description: Path to the root directory of the application
+      value: '!!!SETME!!!'
+    db-connection:
+      env: DB_CONNECTION
+      type: string
+      description: Database connection type (eg. MySQL, SQLite)
+      value: mysql
+    db-host:
+      env: DB_HOST
+      type: string
+      description: Database host
+      value: <- connection-hostname("mysql")
+    db-port:
+      env: DB_PORT
+      type: string
+      description: Database port
+      value: <- connection-port("mysql")
+    db-database:
+      env: DB_DATABASE
+      type: string
+      description: Database name
+      value: '!!!SETME-USE-SECRETS!!!'
+    db-username:
+      env: DB_USERNAME
+      type: string
+      description: Database username
+      value: '!!!SETME-USE-SECRETS!!!'
+    db-password:
+      env: DB_PASSWORD
+      type: string
+      description: Database password
+      value: '!!!SETME!!!'
+    redis-host:
+      env: REDIS_HOST
+      type: string
+      description: Redis host
+      value: <- connection-hostname("redis")
+    redis-port:
+      env: REDIS_PORT
+      type: string
+      description: Redis port
+      value: <- connection-port("redis")
+db:
+  defines: runnable
+  inherits: monk-mysql/db
+redis:
+  defines: runnable
+  inherits: redis/redis
+stack:
+  defines: group
+  members:
+    - laravel-realworld-example-app/laravel-realworld-example-app
+    - laravel-realworld-example-app/db
+    - laravel-realworld-example-app/redis
